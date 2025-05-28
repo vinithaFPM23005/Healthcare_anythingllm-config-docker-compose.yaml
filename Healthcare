@@ -1,0 +1,7 @@
+echo "# Healthcare_anythingllm-config-docker-compose.yaml" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin https://github.com/vinithaFPM23005/Healthcare_anythingllm-config-docker-compose.yaml.git
+git push -u origin main
