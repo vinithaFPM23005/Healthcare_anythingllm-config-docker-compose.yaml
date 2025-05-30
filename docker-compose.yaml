@@ -76,7 +76,7 @@ services:
 
   redis:
     container_name: anythingllm_redis
-    image: redis/redis-stack-server:latest # Use Redis Stack for Redis OM capabilities
+    image: redis:7.2.4-alpine # Use Redis Stack for Redis OM capabilities
     ports:
       - '6379:6379' # Redis Stack default port
     volumes:
