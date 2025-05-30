@@ -1,7 +1,102 @@
-echo "# Healthcare_anythingllm-config-docker-compose.yaml" >> README.md
-git init
-git add README.md
-git commit -m "first commit"
-git branch -M main
-git remote add origin https://github.com/vinithaFPM23005/Healthcare_anythingllm-config-docker-compose.yaml.git
-git push -u origin main
+version: '3.8'
+
+# AnythingLLM - The easiest way to host your own AI Chatbot.
+# Visit https://docs.anythingllm.com/docker/compose for more.
+
+services:
+  anythingllm:
+    container_name: anythingllm
+    image: ghcr.io/mintplex-labs/anythingllm:1.4.1 # Using a specific stable version
+    ports:
+      - '3001:3001' # AnythingLLM UI
+    volumes:
+      - anythingllm_storage:/app/server/storage
+      - anythingllm_collector_storage:/app/collector/storage
+    environment:
+      - REDIS_OM_URL=redis://redis:6379 # Points to the Redis service
+      - ANYTHINGLLM_ENV=production
+      # Update these values or remove them entirely to use default values
+      # - LLM_PROVIDER=openai
+      # - OPEN_AI_KEY=sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      # - OPEN_AI_ORG_ID=org-xxxxxxxxxxxxxxxxxxxx
+      # - HUGGING_FACE_API_KEY=hf_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      # - HUGGING_FACE_LLM_MODEL=Xenova/text-davinci-003-tokenizer # Example for on-device embedding
+      # - AZURE_OPEN_AI_KEY=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+      # - AZURE_OPEN_AI_ENDPOINT=https://xxxx.openai.azure.com/
+      # - AZURE_OPEN_AI_MODEL_REF=gpt-4
+      # - AZURE_OPEN_AI_EMBEDDING_MODEL_REF=text-embedding-ada-002
+      # - VECTOR_DB=lancedb
+      # - PINECONE_API_KEY=xxxxxx
+      # - PINECONE_ENVIRONMENT=xxxxxx
+      # - PINECONE_PROJECT_ID=xxxxxx
+      # - QDRANT_URL=http://qdrant:6333
+      # - QDRANT_API_KEY=xxxxxx
+      # - WEAVIATE_API_KEY=xxxxxx
+      # - WEAVIATE_ATE=http://weaviate:8080
+      # - CHROMADB_PORT=8000
+      # - CHROMA_API_HEADER=
+      # - OPEN_AI_MODEL_PREF=gpt-4
+      # - MISTRAL_API_KEY=
+      # - MISTRAL_LLM_MODEL=
+      # - ANTHROPIC_API_KEY=
+      # - ANTHROPIC_LLM_MODEL=
+      # - GOOGLE_GEMINI_API_KEY=
+      # - GOOGLE_GEMINI_LLM_MODEL=
+      # - GOOGLE_VERTEX_LLM_PROJECT_ID=
+      # - GOOGLE_VERTEX_LLM_LOCATION=
+      # - GOOGLE_VERTEX_LLM_MODEL=
+      # - AZURE_AD_CLIENT_ID=
+      # - AZURE_AD_CLIENT_SECRET=
+      # - AZURE_AD_TENANT_ID=
+      # - EINSTEIN_GPT_API_KEY=
+      # - EINSTEIN_GPT_ORG_ID=
+      # - EINSTEIN_GPT_LLM_MODEL=
+      # - CUSTOM_EMBEDDING_URL=
+      # - CUSTOM_EMBEDDING_MODEL_REF=
+      # - CUSTOM_EMBEDDING_API_KEY=
+      # - CUSTOM_EMBEDDING_API_MODEL_ID=
+      # - SQUIDLE_API_KEY=
+      # - SQUIDLE_LLM_MODEL=
+      # - COHERE_API_KEY=
+      # - COHERE_LLM_MODEL=
+      # - COHERE_EMBEDDING_MODEL=
+      # - MISTRAL_EMBEDDING_MODEL=
+      # - RERANKING_MODEL_ID=
+      # - RERANKING_API_KEY=
+      # - CUSTOM_RERANKING_URL=
+      # - CUSTOM_RERANKING_API_KEY=
+      # - CUSTOM_RERANKING_API_MODEL_ID=
+      # - ENABLE_RAG=true # True will ensure responses have citations to embedded content.
+    depends_on:
+      redis:
+        condition: service_healthy # Wait for Redis to be ready
+    networks:
+      - anythingllm_network
+    restart: always
+
+  redis:
+    container_name: anythingllm_redis
+    image: redis/redis-stack-server:latest # Use Redis Stack for Redis OM capabilities
+    ports:
+      - '6379:6379' # Redis Stack default port
+    volumes:
+      - anythingllm_redis_data:/data
+    networks:
+      - anythingllm_network
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: always
+
+# Define Docker volumes for persistent storage
+volumes:
+  anythingllm_storage:
+  anythingllm_collector_storage:
+  anythingllm_redis_data:
+
+# Define a custom network for inter-service communication
+networks:
+  anythingllm_network:
+    driver: bridge
